@@ -1,0 +1,5 @@
+{
+  "name": "Audit Log Client",
+  "description": "A resilient, enterprise-grade frontend client for the Audit Engine API.",
+  "requestFramePermissions": []
+}

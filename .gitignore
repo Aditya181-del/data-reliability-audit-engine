@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Node / frontend
+node_modules/
+dist/
+build/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Data artifacts
+*.csv
+*.parquet
+*.zip
+
+# Logs
+*.log

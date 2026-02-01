@@ -1,39 +1,33 @@
 import sys
+from typing import Optional
 
-from draudit.ingestion.loader import load_dataset
-from draudit.ingestion.schema import infer_schema
-from draudit.ingestion.snapshot import create_snapshot
+from draudit.pipeline import run_audit_pipeline
 
 
-def main() -> None:
-    if len(sys.argv) != 2:
+def main(argv: Optional[list[str]] = None) -> None:
+    """
+    CLI entrypoint for Data Reliability Audit.
+
+    This is a thin wrapper around the authoritative
+    engine pipeline function.
+    """
+    args = argv if argv is not None else sys.argv[1:]
+
+    if len(args) != 1:
         print("Usage: python -m draudit.cli <path_to_dataset>")
         sys.exit(1)
 
-    dataset_path = sys.argv[1]
+    dataset_path = args[0]
 
-    # 1. Load dataset (no mutation)
-    df, warnings = load_dataset(dataset_path)
+    # Delegate to the engine-owned pipeline
+    report = run_audit_pipeline(dataset_path)
 
-    # 2. Observe schema
-    schema = infer_schema(df)
-
-    # 3. Create deterministic snapshot
-    snapshot = create_snapshot(df, dataset_path, schema)
-
-    # 4. Human-readable output
-    print("\n=== DATASET SNAPSHOT ===")
-    print(f"Snapshot ID        : {snapshot.snapshot_id}")
-    print(f"File Path          : {snapshot.file_path}")
-    print(f"File Type          : {snapshot.file_type}")
-    print(f"File Size (bytes)  : {snapshot.file_size_bytes}")
-    print(f"Rows               : {snapshot.row_count}")
-    print(f"Columns            : {snapshot.column_count}")
-
-    if warnings:
-        print("\n=== INGESTION WARNINGS ===")
-        for w in warnings:
-            print(f"[{w.code}] {w.message}")
+    # Human-readable CLI output (temporary)
+    # This will later be aligned with the HTML/JSON report
+    print("\n=== DATA RELIABILITY AUDIT COMPLETED ===")
+    print(f"Decision : {report.decision}")
+    print(f"Snapshot : {report.snapshot.snapshot_id}")
+    print(f"Risks    : {len(report.risks)}")
 
 
 if __name__ == "__main__":
